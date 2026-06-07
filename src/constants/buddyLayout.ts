@@ -20,14 +20,10 @@ export const CHECKLIST_WINDOW = {
 };
 
 export const SCALE_FACTOR_MIN = 0.72;
-export const SCALE_FACTOR_MAX = 1.28;
 export const SCALE_FACTOR_DEFAULT = 1;
 
 export function clampScaleFactor(value: number): number {
-  return Math.min(
-    SCALE_FACTOR_MAX,
-    Math.max(SCALE_FACTOR_MIN, Math.round(value * 100) / 100)
-  );
+  return Math.max(SCALE_FACTOR_MIN, Math.round(value * 100) / 100);
 }
 
 export function getBuddyWindowSize(scaleFactor: number): {

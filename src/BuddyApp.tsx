@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { PixelAssistant } from "./assistant/PixelAssistant";
 import { SpeechBubble } from "./ui/SpeechBubble";
@@ -12,8 +12,11 @@ import { useBuddyTray } from "./hooks/useBuddyTray";
 import { useBuddyWindow } from "./hooks/useBuddyWindow";
 import type { WindowPosition } from "./types/buddy";
 import { closeChecklist, openChecklist } from "./window/checklistWindow";
+import { shouldFlipBuddyOnCurrentDisplay } from "./window/monitorUtils";
+import { startBuddyWindowDrag } from "./window/buddyWindow";
 
 export function BuddyApp() {
+  const [flipBuddy, setFlipBuddy] = useState(false);
   const {
     preferences,
     ready,
@@ -58,7 +61,9 @@ export function BuddyApp() {
   const { menu, openMenu, closeMenu } = useBuddyContextMenu();
   const { onHandlePointerDown } = useBuddyResizeDrag(
     preferences.scaleFactor,
-    setScaleFactor
+    preferences.position,
+    setScaleFactor,
+    setPosition
   );
 
   const scaleFactor = preferences.scaleFactor;
@@ -72,6 +77,18 @@ export function BuddyApp() {
       });
     },
     [openMenu, windowSize.height, windowSize.width, scaleFactor]
+  );
+
+  const handleBuddyPointerDown = useCallback(
+    (event: React.PointerEvent<HTMLElement>) => {
+      if (event.button !== 0 || menu) return;
+
+      const target = event.target as HTMLElement | null;
+      if (target?.closest("button, input, textarea, select, a")) return;
+
+      void startBuddyWindowDrag().catch(() => undefined);
+    },
+    [menu]
   );
 
   const handleToggleChecklist = useCallback(async () => {
@@ -130,6 +147,24 @@ export function BuddyApp() {
   }, [windowSize.height, windowSize.width]);
 
   useEffect(() => {
+    if (!ready || !preferences.position) return;
+
+    let cancelled = false;
+
+    void shouldFlipBuddyOnCurrentDisplay(preferences.position, windowSize).then(
+      (shouldFlip) => {
+        if (!cancelled) {
+          setFlipBuddy(shouldFlip);
+        }
+      }
+    );
+
+    return () => {
+      cancelled = true;
+    };
+  }, [ready, preferences.position, windowSize.height, windowSize.width]);
+
+  useEffect(() => {
     const setup = async () => {
       const unlistenClosed = await listen("checklist-closed", () => {
         persistChecklistClosed();
@@ -171,6 +206,7 @@ export function BuddyApp() {
   const buddyClass = [
     "buddy-window",
     preferences.resizeModeActive ? "buddy-window--resize-active" : "",
+    flipBuddy ? "buddy-window--flip" : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -207,11 +243,10 @@ export function BuddyApp() {
 
         <div
           className="buddy-stage"
-          {...(!preferences.resizeModeActive ? { "data-tauri-drag-region": true } : {})}
+          onPointerDown={handleBuddyPointerDown}
         >
           <SpeechBubble
             className="speech-bubble--buddy"
-            {...(!preferences.resizeModeActive ? { "data-tauri-drag-region": true } : {})}
             onContextMenu={handleOpenMenu}
           >
             5 phút nữa tới giờ làm task tiếp theo.
@@ -220,7 +255,6 @@ export function BuddyApp() {
           <PixelAssistant
             scale={scaleFactor}
             className="pixel-buddy--stage"
-            {...(!preferences.resizeModeActive ? { "data-tauri-drag-region": true } : {})}
             onContextMenu={handleOpenMenu}
           />
         </div>

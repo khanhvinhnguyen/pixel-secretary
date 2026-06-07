@@ -33,6 +33,15 @@ export async function applyBuddyPosition(position: WindowPosition): Promise<void
   );
 }
 
+export async function applyBuddyLayout(
+  position: WindowPosition,
+  size: WindowSize
+): Promise<void> {
+  const win = getCurrentWindow();
+  await win.setSize(new LogicalSize(size.width, size.height));
+  await win.setPosition(new LogicalPosition(position.x, position.y));
+}
+
 export async function applyBuddySize(
   scaleFactor: number
 ): Promise<WindowSize> {
@@ -54,6 +63,10 @@ export async function hideBuddyWindow(): Promise<void> {
 
 export async function showBuddyWindow(): Promise<void> {
   await bringBuddyAboveChecklist();
+}
+
+export async function startBuddyWindowDrag(): Promise<void> {
+  await getCurrentWindow().startDragging();
 }
 
 export async function restoreOrDefaultBuddyPosition(

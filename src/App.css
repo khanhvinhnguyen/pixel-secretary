@@ -79,8 +79,8 @@
 /* 8 nút nắm — góc + cạnh */
 .buddy-resize-handle {
   position: absolute;
-  width: calc(12px * var(--buddy-scale, 1));
-  height: calc(12px * var(--buddy-scale, 1));
+  width: calc(18px * var(--buddy-scale, 1));
+  height: calc(18px * var(--buddy-scale, 1));
   padding: 0;
   margin: 0;
   border: 2px solid var(--px-ink);
@@ -93,9 +93,9 @@
 .buddy-resize-handle::after {
   content: "";
   display: block;
-  width: 4px;
-  height: 4px;
-  margin: 2px auto 0;
+  width: calc(6px * var(--buddy-scale, 1));
+  height: calc(6px * var(--buddy-scale, 1));
+  margin: calc(3px * var(--buddy-scale, 1)) auto 0;
   background: var(--px-ink);
 }
 
@@ -177,10 +177,15 @@
   z-index: 2;
 }
 
+.buddy-window--resize-active .buddy-stage {
+  cursor: move;
+}
+
 /* Bong bóng trên buddy stage — vị trí theo scale */
 .speech-bubble--buddy {
   position: absolute;
   right: calc(84px * var(--buddy-scale, 1));
+  left: auto;
   bottom: calc(112px * var(--buddy-scale, 1));
   max-width: calc(210px * var(--buddy-scale, 1));
   padding: calc(10px * var(--buddy-scale, 1)) calc(11px * var(--buddy-scale, 1));
@@ -190,6 +195,7 @@
 
 .speech-bubble--buddy::before {
   right: calc(18px * var(--buddy-scale, 1));
+  left: auto;
   bottom: calc(-10px * var(--buddy-scale, 1));
   border-left-width: calc(8px * var(--buddy-scale, 1));
   border-right-width: calc(8px * var(--buddy-scale, 1));
@@ -198,6 +204,7 @@
 
 .speech-bubble--buddy::after {
   right: calc(20px * var(--buddy-scale, 1));
+  left: auto;
   bottom: calc(-6px * var(--buddy-scale, 1));
   border-left-width: calc(6px * var(--buddy-scale, 1));
   border-right-width: calc(6px * var(--buddy-scale, 1));
@@ -208,6 +215,7 @@
 .pixel-buddy--stage {
   position: absolute;
   right: calc(8px * var(--buddy-scale, 1));
+  left: auto;
   bottom: calc(6px * var(--buddy-scale, 1));
   background: transparent;
   border: 0;
@@ -234,6 +242,31 @@
   transform: translateY(1%) scale(1.16);
   transform-origin: center bottom;
   z-index: 1;
+}
+
+.buddy-window--flip .pixel-buddy--stage .pixel-character__img,
+.buddy-window--flip .pixel-buddy--stage .pixel-buddy__sprite {
+  transform: translateY(1%) scaleX(-1) scaleY(1) scale(1.16);
+}
+
+.buddy-window--flip .speech-bubble--buddy {
+  right: auto;
+  left: calc(84px * var(--buddy-scale, 1));
+}
+
+.buddy-window--flip .speech-bubble--buddy::before {
+  right: auto;
+  left: calc(18px * var(--buddy-scale, 1));
+}
+
+.buddy-window--flip .speech-bubble--buddy::after {
+  right: auto;
+  left: calc(20px * var(--buddy-scale, 1));
+}
+
+.buddy-window--flip .pixel-buddy--stage {
+  right: auto;
+  left: calc(8px * var(--buddy-scale, 1));
 }
 
 /* Tab LIST — pixel vertical */

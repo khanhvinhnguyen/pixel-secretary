@@ -1,9 +1,10 @@
 import { useCallback, useRef } from "react";
 import {
   clampScaleFactor,
-  SCALE_FACTOR_MAX,
-  SCALE_FACTOR_MIN,
+  getBuddyWindowSize,
 } from "../constants/buddyLayout";
+import type { WindowPosition } from "../types/buddy";
+import { applyBuddyLayout, readBuddyPosition } from "../window/buddyWindow";
 
 export type ResizeHandleId =
   | "n"
@@ -16,6 +17,7 @@ export type ResizeHandleId =
   | "se";
 
 const SENSITIVITY = 0.0032;
+const FALLBACK_POSITION: WindowPosition = { x: 0, y: 0 };
 
 function scaleDeltaFromDrag(
   handle: ResizeHandleId,
@@ -44,15 +46,50 @@ function scaleDeltaFromDrag(
   }
 }
 
+function getAnchoredPosition(
+  handle: ResizeHandleId,
+  startPosition: WindowPosition,
+  startSize: { width: number; height: number },
+  nextSize: { width: number; height: number }
+): WindowPosition {
+  const deltaWidth = startSize.width - nextSize.width;
+  const deltaHeight = startSize.height - nextSize.height;
+
+  let x = startPosition.x;
+  let y = startPosition.y;
+
+  if (handle.includes("w")) {
+    x += deltaWidth;
+  } else if (handle === "n" || handle === "s") {
+    x += Math.round(deltaWidth / 2);
+  }
+
+  if (handle.includes("n")) {
+    y += deltaHeight;
+  } else if (handle === "e" || handle === "w") {
+    y += Math.round(deltaHeight / 2);
+  }
+
+  return {
+    x: Math.round(x),
+    y: Math.round(y),
+  };
+}
+
 export function useBuddyResizeDrag(
   scaleFactor: number,
-  onScaleFactorChange: (value: number) => void
+  position: WindowPosition | null,
+  onScaleFactorChange: (value: number) => void,
+  onPositionChange: (position: WindowPosition) => void
 ) {
   const dragRef = useRef<{
     handle: ResizeHandleId;
     startX: number;
     startY: number;
     startScale: number;
+    startPosition: WindowPosition;
+    startSize: { width: number; height: number };
+    hasMoved: boolean;
   } | null>(null);
 
   const onHandlePointerDown = useCallback(
@@ -62,33 +99,61 @@ export function useBuddyResizeDrag(
 
       dragRef.current = {
         handle,
-        startX: event.clientX,
-        startY: event.clientY,
+        startX: event.screenX,
+        startY: event.screenY,
         startScale: scaleFactor,
+        startPosition: position ?? FALLBACK_POSITION,
+        startSize: getBuddyWindowSize(scaleFactor),
+        hasMoved: false,
       };
 
-      event.currentTarget.setPointerCapture(event.pointerId);
+      void readBuddyPosition()
+        .then((currentPosition) => {
+          if (!dragRef.current || dragRef.current.hasMoved) return;
+          dragRef.current.startPosition = currentPosition;
+        })
+        .catch(() => undefined);
+
+      try {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      } catch {
+        // Pointer capture is best-effort; window listeners below keep dragging alive.
+      }
 
       const onMove = (moveEvent: PointerEvent) => {
         if (!dragRef.current) return;
-        const deltaX = moveEvent.clientX - dragRef.current.startX;
-        const deltaY = moveEvent.clientY - dragRef.current.startY;
+        moveEvent.preventDefault();
+        dragRef.current.hasMoved = true;
+
+        const deltaX = moveEvent.screenX - dragRef.current.startX;
+        const deltaY = moveEvent.screenY - dragRef.current.startY;
         const delta = scaleDeltaFromDrag(dragRef.current.handle, deltaX, deltaY);
-        onScaleFactorChange(
-          clampScaleFactor(dragRef.current.startScale + delta)
+        const nextScale = clampScaleFactor(dragRef.current.startScale + delta);
+        const nextSize = getBuddyWindowSize(nextScale);
+        const nextPosition = getAnchoredPosition(
+          dragRef.current.handle,
+          dragRef.current.startPosition,
+          dragRef.current.startSize,
+          nextSize
         );
+
+        onScaleFactorChange(nextScale);
+        onPositionChange(nextPosition);
+        void applyBuddyLayout(nextPosition, nextSize);
       };
 
       const onUp = () => {
         dragRef.current = null;
         window.removeEventListener("pointermove", onMove);
         window.removeEventListener("pointerup", onUp);
+        window.removeEventListener("pointercancel", onUp);
       };
 
       window.addEventListener("pointermove", onMove);
       window.addEventListener("pointerup", onUp);
+      window.addEventListener("pointercancel", onUp);
     },
-    [onScaleFactorChange, scaleFactor]
+    [onPositionChange, onScaleFactorChange, position, scaleFactor]
   );
 
   return { onHandlePointerDown };

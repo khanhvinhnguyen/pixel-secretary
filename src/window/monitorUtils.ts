@@ -81,6 +81,40 @@ function findHostWorkArea(
   );
 }
 
+function findNearestWorkArea(
+  position: WindowPosition,
+  monitors: WorkArea[],
+  windowSize: WindowSize
+): WorkArea | null {
+  if (monitors.length === 0) return null;
+
+  const center = {
+    x: position.x + windowSize.width / 2,
+    y: position.y + windowSize.height / 2,
+  };
+
+  return monitors.reduce<WorkArea | null>((nearest, area) => {
+    const areaCenter = {
+      x: area.x + area.width / 2,
+      y: area.y + area.height / 2,
+    };
+    const distance =
+      (center.x - areaCenter.x) ** 2 + (center.y - areaCenter.y) ** 2;
+
+    if (!nearest) return area;
+
+    const nearestCenter = {
+      x: nearest.x + nearest.width / 2,
+      y: nearest.y + nearest.height / 2,
+    };
+    const nearestDistance =
+      (center.x - nearestCenter.x) ** 2 +
+      (center.y - nearestCenter.y) ** 2;
+
+    return distance < nearestDistance ? area : nearest;
+  }, null);
+}
+
 export async function getMonitorWorkAreas(): Promise<WorkArea[]> {
   try {
     const monitors = await availableMonitors();
@@ -164,4 +198,24 @@ export async function getWorkAreaForBuddyPosition(
   const host = findHostWorkArea(position, areas, windowSize, POSITION_MARGIN);
 
   return host ?? primary;
+}
+
+export async function shouldFlipBuddyOnCurrentDisplay(
+  position: WindowPosition,
+  windowSize: WindowSize
+): Promise<boolean> {
+  const monitors = await getMonitorWorkAreas();
+  const primary = (await getPrimaryWorkArea()) ?? monitors[0];
+
+  if (!primary) return false;
+
+  const areas = monitors.length > 0 ? monitors : [primary];
+  const host =
+    findHostWorkArea(position, areas, windowSize, 0) ??
+    findNearestWorkArea(position, areas, windowSize) ??
+    primary;
+  const buddyCenterX = position.x + windowSize.width / 2;
+  const displayCenterX = host.x + host.width / 2;
+
+  return buddyCenterX < displayCenterX;
 }

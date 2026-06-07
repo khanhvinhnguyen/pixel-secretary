@@ -1,4 +1,4 @@
-import type { ResizeHandleId } from "../hooks/useBuddyResizeDrag";
+import type { ResizeHandleId } from "../window/buddyResize";
 
 const RESIZE_HANDLES: {
   id: ResizeHandleId;

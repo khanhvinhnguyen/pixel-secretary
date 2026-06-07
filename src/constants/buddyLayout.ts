@@ -1,11 +1,6 @@
 /** Safe inset from display edges when placing or validating the buddy (16–24px). */
 export const POSITION_MARGIN = 20;
 
-/** @deprecated Use POSITION_MARGIN */
-export const EDGE_MARGIN = POSITION_MARGIN;
-
-export const NOTEBOOK_TAB_WIDTH = 36;
-
 export const BUDDY_WINDOW_SIZE = {
   width: 340,
   height: 240,

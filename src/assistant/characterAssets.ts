@@ -9,33 +9,6 @@ export interface CharacterAsset {
   imageUrl?: string;
 }
 
-const officeChibiRows = [
-  ".......KKKKKK.......",
-  ".....KKHHHHHHKK.....",
-  "....KHHHHHHHHHHK....",
-  "...KHHHhhhhHHHHHK...",
-  "...KHHHHHHHHHHHHK...",
-  "..KHHHKKSSSSKKHHHK..",
-  "..KHHKSSSSSSSSKHHK..",
-  ".KHHKSSPSSSSPSSKHHK.",
-  ".KHHKSSKSKKSKSSKHHK.",
-  ".KHHKSSSSMMSSSSKHHK.",
-  "..KHHKSSPPPPSSKHHK..",
-  "...KHHKSSSSSSKHHK...",
-  "....KKKSSSSSSKKK....",
-  ".....KWWRRWWK.......",
-  "....KWWWRRWWWK......",
-  "...KNWWRRRRWWNK.....",
-  "...KNNWWRRWWNNK.....",
-  "....KNNBBBBNNK......",
-  ".....KBBBBBBK.......",
-  ".....KBNBBNBK.......",
-  "....KDDK..KDDK......",
-  "....KDDK..KDDK......",
-  "....KKK....KKK......",
-  "....................",
-];
-
 export const CHARACTER_ASSETS: Record<BuddyCharacterId, CharacterAsset> = {
   "female-office": {
     id: "female-office",
@@ -46,7 +19,6 @@ export const CHARACTER_ASSETS: Record<BuddyCharacterId, CharacterAsset> = {
   "male-office": {
     id: "male-office",
     label: "Male office chibi pixel secretary",
-    spriteRows: officeChibiRows,
     palette: {
       K: "#1b1222",
       H: "#3f2b25",

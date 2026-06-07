@@ -61,22 +61,8 @@ export async function hideBuddyWindow(): Promise<void> {
   await getCurrentWindow().hide();
 }
 
-export async function showBuddyWindow(): Promise<void> {
-  await bringBuddyAboveChecklist();
-}
-
 export async function startBuddyWindowDrag(): Promise<void> {
   await getCurrentWindow().startDragging();
-}
-
-export async function restoreOrDefaultBuddyPosition(
-  saved: WindowPosition | null,
-  scaleFactor: number
-): Promise<WindowPosition> {
-  const windowSize = getBuddyWindowSize(scaleFactor);
-  const { position } = await resolveBuddyStartupPosition(saved, windowSize);
-  await applyBuddyPosition(position);
-  return position;
 }
 
 /** Reset position → bottom-right of primary monitor (context menu / tray). */

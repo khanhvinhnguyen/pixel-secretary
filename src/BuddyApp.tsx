@@ -4,14 +4,13 @@ import { PixelAssistant } from "./assistant/PixelAssistant";
 import { SpeechBubble } from "./ui/SpeechBubble";
 import { BuddyContextMenu } from "./components/BuddyContextMenu";
 import { BuddyResizeFrame } from "./components/BuddyResizeFrame";
-import { NotebookTab } from "./components/NotebookPanel";
 import { useBuddyContextMenu } from "./hooks/useBuddyContextMenu";
 import { useBuddyPreferences } from "./hooks/useBuddyPreferences";
 import { useBuddyResizeDrag } from "./hooks/useBuddyResizeDrag";
 import { useBuddyTray } from "./hooks/useBuddyTray";
 import { useBuddyWindow } from "./hooks/useBuddyWindow";
 import type { WindowPosition } from "./types/buddy";
-import { closeChecklist, openChecklist } from "./window/checklistWindow";
+import { openChecklist } from "./window/checklistWindow";
 import { shouldFlipBuddyOnCurrentDisplay } from "./window/monitorUtils";
 import { startBuddyWindowDrag } from "./window/buddyWindow";
 
@@ -90,18 +89,6 @@ export function BuddyApp() {
     },
     [menu]
   );
-
-  const handleToggleChecklist = useCallback(async () => {
-    closeMenu();
-    if (preferences.checklistOpen) {
-      persistChecklistClosed();
-      await closeChecklist();
-      return;
-    }
-
-    persistChecklistOpen();
-    await openChecklist();
-  }, [closeMenu, persistChecklistClosed, persistChecklistOpen, preferences.checklistOpen]);
 
   const handleContextAction = async (
     action: "checklist" | "toggle-resize" | "reset-position"
@@ -258,13 +245,6 @@ export function BuddyApp() {
             onContextMenu={handleOpenMenu}
           />
         </div>
-
-        {/* TODO: Add notebook panel */}
-        {/* <NotebookTab
-          open={preferences.checklistOpen}
-          onToggle={() => void handleToggleChecklist()}
-          onContextMenu={handleOpenMenu}
-        /> */}
       </div>
     </>
   );

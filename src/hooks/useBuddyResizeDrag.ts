@@ -1,111 +1,15 @@
 import { useCallback, useRef } from "react";
-import {
-  clampScaleFactor,
-  getBuddyWindowSize,
-} from "../constants/buddyLayout";
+import { getBuddyWindowSize } from "../constants/buddyLayout";
 import type { WindowPosition } from "../types/buddy";
 import { applyBuddyLayout, readBuddyPosition } from "../window/buddyWindow";
-import type { WindowSize } from "../window/windowLayout";
+import {
+  applyBuddyResizePreview,
+  getResizeLayout,
+  type ResizeHandleId,
+  type ResizeLayout,
+} from "../window/buddyResize";
 
-export type ResizeHandleId =
-  | "n"
-  | "s"
-  | "e"
-  | "w"
-  | "nw"
-  | "ne"
-  | "sw"
-  | "se";
-
-const SENSITIVITY = 0.0032;
 const FALLBACK_POSITION: WindowPosition = { x: 0, y: 0 };
-
-interface ResizeLayout {
-  position: WindowPosition;
-  scaleFactor: number;
-  size: WindowSize;
-}
-
-function applyPreviewDom(scaleFactor: number, size: WindowSize): void {
-  const width = `${size.width}px`;
-  const height = `${size.height}px`;
-  const scale = String(scaleFactor);
-
-  document.documentElement.style.width = width;
-  document.documentElement.style.height = height;
-  document.body.style.width = width;
-  document.body.style.height = height;
-
-  const root = document.getElementById("root");
-  if (root) {
-    root.style.width = width;
-    root.style.height = height;
-  }
-
-  const buddy = document.querySelector<HTMLElement>(".buddy-window");
-  if (buddy) {
-    buddy.style.width = width;
-    buddy.style.height = height;
-    buddy.style.setProperty("--buddy-scale", scale);
-  }
-}
-
-function scaleDeltaFromDrag(
-  handle: ResizeHandleId,
-  deltaX: number,
-  deltaY: number
-): number {
-  switch (handle) {
-    case "se":
-      return (deltaX + deltaY) * SENSITIVITY;
-    case "nw":
-      return (-deltaX - deltaY) * SENSITIVITY;
-    case "ne":
-      return (deltaX - deltaY) * SENSITIVITY;
-    case "sw":
-      return (-deltaX + deltaY) * SENSITIVITY;
-    case "e":
-      return deltaX * SENSITIVITY * 1.6;
-    case "w":
-      return -deltaX * SENSITIVITY * 1.6;
-    case "s":
-      return deltaY * SENSITIVITY * 1.6;
-    case "n":
-      return -deltaY * SENSITIVITY * 1.6;
-    default:
-      return 0;
-  }
-}
-
-function getAnchoredPosition(
-  handle: ResizeHandleId,
-  startPosition: WindowPosition,
-  startSize: { width: number; height: number },
-  nextSize: { width: number; height: number }
-): WindowPosition {
-  const deltaWidth = startSize.width - nextSize.width;
-  const deltaHeight = startSize.height - nextSize.height;
-
-  let x = startPosition.x;
-  let y = startPosition.y;
-
-  if (handle.includes("w")) {
-    x += deltaWidth;
-  } else if (handle === "n" || handle === "s") {
-    x += Math.round(deltaWidth / 2);
-  }
-
-  if (handle.includes("n")) {
-    y += deltaHeight;
-  } else if (handle === "e" || handle === "w") {
-    y += Math.round(deltaHeight / 2);
-  }
-
-  return {
-    x: Math.round(x),
-    y: Math.round(y),
-  };
-}
 
 export function useBuddyResizeDrag(
   scaleFactor: number,
@@ -114,9 +18,9 @@ export function useBuddyResizeDrag(
   onPositionChange: (position: WindowPosition) => void
 ) {
   const dragRef = useRef<{
-    handle: ResizeHandleId;
     startX: number;
     startY: number;
+    handle: ResizeHandleId;
     startScale: number;
     startPosition: WindowPosition;
     startSize: { width: number; height: number };
@@ -174,7 +78,7 @@ export function useBuddyResizeDrag(
       scaleFactor: nextScale,
     };
 
-    applyPreviewDom(nextScale, nextSize);
+    applyBuddyResizePreview(nextScale, nextSize);
     applyNativeLayoutLatest(layout);
   }, [applyNativeLayoutLatest]);
 
@@ -220,24 +124,11 @@ export function useBuddyResizeDrag(
         moveEvent.preventDefault();
         dragRef.current.hasMoved = true;
 
-        const deltaX = moveEvent.screenX - dragRef.current.startX;
-        const deltaY = moveEvent.screenY - dragRef.current.startY;
-        const delta = scaleDeltaFromDrag(dragRef.current.handle, deltaX, deltaY);
-        const rawScale = dragRef.current.startScale + delta;
-        const nextScale = clampScaleFactor(rawScale);
-        const nextSize = getBuddyWindowSize(nextScale);
-        const nextPosition = getAnchoredPosition(
-          dragRef.current.handle,
-          dragRef.current.startPosition,
-          dragRef.current.startSize,
-          nextSize
+        dragRef.current.pendingLayout = getResizeLayout(
+          dragRef.current,
+          moveEvent.screenX,
+          moveEvent.screenY
         );
-
-        dragRef.current.pendingLayout = {
-          position: nextPosition,
-          scaleFactor: nextScale,
-          size: nextSize,
-        };
 
         if (dragRef.current.frameId === null) {
           dragRef.current.frameId = window.requestAnimationFrame(
@@ -256,7 +147,7 @@ export function useBuddyResizeDrag(
         if (drag?.pendingLayout) {
           const { position: nextPosition, scaleFactor: nextScale, size } =
             drag.pendingLayout;
-          applyPreviewDom(nextScale, size);
+          applyBuddyResizePreview(nextScale, size);
           void applyBuddyLayout(nextPosition, size);
           drag.lastLayout = {
             position: nextPosition,

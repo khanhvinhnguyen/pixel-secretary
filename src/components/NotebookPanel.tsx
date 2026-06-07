@@ -44,24 +44,3 @@ export function NotebookPanelContent({ onClose }: NotebookPanelContentProps) {
     </div>
   );
 }
-
-interface NotebookTabProps {
-  open: boolean;
-  onToggle: () => void;
-  onContextMenu: (event: React.MouseEvent) => void;
-}
-
-export function NotebookTab({ open, onToggle, onContextMenu }: NotebookTabProps) {
-  return (
-    <button
-      type="button"
-      className={`notebook-tab ${open ? "notebook-tab--open" : ""}`}
-      aria-expanded={open}
-      aria-label={open ? "Đóng checklist" : "Mở checklist"}
-      onClick={onToggle}
-      onContextMenu={onContextMenu}
-    >
-      <span className="notebook-tab__label">LIST</span>
-    </button>
-  );
-}

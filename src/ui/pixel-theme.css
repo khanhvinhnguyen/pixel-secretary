@@ -1,0 +1,275 @@
+/* ═══ Pixel Art UI — theme dùng chung (không neo-brutal) ═══ */
+
+.pixel-border {
+  border: var(--px-border) solid var(--px-ink);
+  border-radius: 0;
+  box-shadow: var(--px-shadow);
+  image-rendering: pixelated;
+}
+
+.pixel-border--inset {
+  box-shadow:
+    var(--px-shadow),
+    inset calc(-1 * var(--px-step)) calc(-1 * var(--px-step)) 0 rgba(26, 16, 37, 0.12);
+}
+
+.pixel-shadow-sm {
+  box-shadow: var(--px-shadow-sm);
+}
+
+.pixel-shadow-none {
+  box-shadow: none;
+}
+
+/* Nút / control — hover dịch 2px kiểu game */
+.pixel-pressable {
+  border-radius: 0;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: none;
+  image-rendering: pixelated;
+}
+
+.pixel-pressable:hover:not(:disabled) {
+  transform: translate(var(--px-step), var(--px-step));
+  box-shadow: none;
+}
+
+.pixel-pressable:active:not(:disabled) {
+  transform: translate(var(--px-step), var(--px-step));
+  box-shadow: none;
+}
+
+.pixel-pressable:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Button variants */
+.pixel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: var(--px-border) solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-gold);
+  color: var(--px-ink);
+  box-shadow: var(--px-shadow-sm);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.2;
+}
+
+.pixel-btn--gold {
+  background: var(--px-gold);
+  color: var(--px-ink);
+}
+
+.pixel-btn--mint {
+  background: var(--px-mint);
+  color: var(--px-ink);
+}
+
+.pixel-btn--coral {
+  background: var(--px-coral);
+  color: var(--px-ink);
+}
+
+.pixel-btn--sky {
+  background: var(--px-sky);
+  color: var(--px-ink);
+}
+
+.pixel-btn--purple {
+  background: var(--px-purple);
+  color: var(--px-paper-bright);
+}
+
+.pixel-btn--paper {
+  background: var(--px-paper-bright);
+  color: var(--px-ink);
+}
+
+.pixel-btn--icon {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.pixel-btn--block {
+  width: 100%;
+}
+
+/* Card */
+.pixel-card {
+  border: var(--px-border) solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-paper-bright);
+  box-shadow: var(--px-shadow);
+  image-rendering: pixelated;
+}
+
+.pixel-card--paper {
+  background: var(--px-paper);
+}
+
+.pixel-card--sky {
+  background: var(--px-sky);
+}
+
+/* Popup overlay */
+.pixel-popup-backdrop {
+  position: fixed;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: rgba(26, 16, 37, 0.35);
+  z-index: 9000;
+  image-rendering: pixelated;
+}
+
+.pixel-popup {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9001;
+  min-width: 280px;
+  max-width: min(92vw, 420px);
+  padding: 14px 16px;
+  border: var(--px-border) solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-paper-bright);
+  box-shadow: var(--px-shadow);
+  image-rendering: pixelated;
+}
+
+/* Speech bubble — khung + đuôi tam giác vuông */
+.speech-bubble {
+  position: relative;
+  padding: 10px 11px;
+  background: var(--px-paper-bright);
+  border: var(--px-border) solid var(--px-ink);
+  border-radius: 0;
+  box-shadow: var(--px-shadow);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--px-ink);
+  image-rendering: pixelated;
+}
+
+.speech-bubble::before {
+  content: "";
+  position: absolute;
+  right: 18px;
+  bottom: -10px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 10px solid var(--px-ink);
+}
+
+.speech-bubble::after {
+  content: "";
+  position: absolute;
+  right: 20px;
+  bottom: -6px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid var(--px-paper-bright);
+}
+
+.speech-bubble--urgent {
+  background: var(--px-coral);
+  color: var(--px-paper-bright);
+}
+
+.speech-bubble--urgent::after {
+  border-top-color: var(--px-coral);
+}
+
+/* Nhân vật pixel */
+.pixel-character {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.pixel-character__img,
+.pixel-character__sprite {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: none;
+}
+
+.pixel-character__img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+}
+
+.pixel-character__sprite {
+  display: grid;
+  grid-template-columns: repeat(var(--sprite-cols), 1fr);
+  grid-template-rows: repeat(var(--sprite-rows), 1fr);
+  width: 78%;
+  height: 92%;
+  align-self: flex-end;
+  transform: translateY(2%);
+}
+
+.pixel-character__cell {
+  width: 100%;
+  height: 100%;
+  background: var(--pixel-color, transparent);
+}
+
+/* Input (task UI sau) */
+.pixel-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: var(--px-border) solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-paper-bright);
+  color: var(--px-ink);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: var(--px-shadow-sm);
+  outline: none;
+  transition: none;
+  image-rendering: pixelated;
+}
+
+.pixel-input:focus {
+  background: var(--px-mint);
+  box-shadow: var(--px-shadow-sm);
+}
+
+.pixel-checkbox {
+  width: 16px;
+  height: 16px;
+  border: 3px solid #000000;
+  border-radius: 0;
+  flex-shrink: 0;
+  background: #ffffff;
+  box-shadow: inset 0 0 0 3px #ffffff;
+  image-rendering: pixelated;
+}

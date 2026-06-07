@@ -1,0 +1,30 @@
+@font-face {
+  font-family: "KVN-97Bold";
+  src:
+    url("/fonts/KVN-97Bold.woff2") format("woff2"),
+    url("/fonts/KVN-97Bold.woff") format("woff"),
+    url("/fonts/KVN-97Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-pixel: "KVN-97Bold", "Courier New", monospace;
+
+  /* Palette kiểu game pixel / office retro */
+  --px-ink: #1a1025;
+  --px-paper: #f6e7b2;
+  --px-paper-bright: #fff8dc;
+  --px-sky: #8ecdf5;
+  --px-mint: #6ee7a7;
+  --px-gold: #ffcd75;
+  --px-coral: #ff6b81;
+  --px-purple: #7b5cff;
+  --px-grid: #c4a574;
+
+  --px-border: 4px;
+  --px-shadow: 4px 4px 0 var(--px-ink);
+  --px-shadow-sm: 2px 2px 0 var(--px-ink);
+  --px-step: 2px;
+}

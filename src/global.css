@@ -1,0 +1,29 @@
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-pixel);
+  font-weight: 700;
+  color: var(--px-ink);
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0;
+  box-shadow: none;
+  overflow: hidden;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+  image-rendering: pixelated;
+}
+
+body {
+  min-width: 0;
+  min-height: 0;
+}
+
+button,
+input,
+textarea {
+  font-family: inherit;
+}
